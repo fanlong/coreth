@@ -51,6 +51,12 @@ func (bc *BlockChain) CurrentBlock() *types.Header {
 	return bc.currentBlock.Load()
 }
 
+// CurrentBlock retrieves the current head block of the canonical chain. The
+// block is retrieved from the blockchain's internal cache.
+func (bc *BlockChain) CurrentBlockFull() *types.Block {
+	return bc.currentBlockFull.Load()
+}
+
 // HasHeader checks if a block header is present in the database or not, caching
 // it if present.
 func (bc *BlockChain) HasHeader(hash common.Hash, number uint64) bool {

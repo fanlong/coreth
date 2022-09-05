@@ -79,6 +79,10 @@ func (b *EthAPIBackend) CurrentBlock() *types.Header {
 	return b.eth.blockchain.CurrentBlock()
 }
 
+func (b *EthAPIBackend) CurrentBlockFull() *types.Block {
+	return b.eth.blockchain.CurrentBlockFull()
+}
+
 func (b *EthAPIBackend) LastAcceptedBlock() *types.Block {
 	return b.eth.LastAcceptedBlock()
 }
@@ -89,12 +93,12 @@ func (b *EthAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNumb
 	}
 	// Treat requests for the pending, latest, or accepted block
 	// identically.
-	acceptedBlock := b.eth.LastAcceptedBlock()
+	acceptedBlock := b.CurrentBlockFull()
 	if number.IsAccepted() {
 		if b.isLatestAndAllowed(number) {
 			return b.eth.blockchain.CurrentHeader(), nil
 		}
-		return acceptedBlock.Header(), nil
+		return b.eth.LastAcceptedBlock().Header(), nil
 	}
 
 	if !b.IsAllowUnfinalizedQueries() && acceptedBlock != nil {
@@ -152,13 +156,13 @@ func (b *EthAPIBackend) BlockByNumber(ctx context.Context, number rpc.BlockNumbe
 	}
 	// Treat requests for the pending, latest, or accepted block
 	// identically.
-	acceptedBlock := b.eth.LastAcceptedBlock()
+	acceptedBlock := b.CurrentBlockFull()
 	if number.IsAccepted() {
 		if b.isLatestAndAllowed(number) {
 			header := b.eth.blockchain.CurrentBlock()
 			return b.eth.blockchain.GetBlock(header.Hash(), header.Number.Uint64()), nil
 		}
-		return acceptedBlock, nil
+		return b.eth.LastAcceptedBlock(), nil
 	}
 
 	if !b.IsAllowUnfinalizedQueries() && acceptedBlock != nil {
