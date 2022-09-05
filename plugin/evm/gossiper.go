@@ -248,10 +248,16 @@ func (n *pushGossiper) awaitEthTxGossip() {
 					)
 				}
 			case txs := <-n.ethTxsToGossipChan:
+				force := false
 				for _, tx := range txs {
 					n.ethTxsToGossip[tx.Hash()] = tx
+					if tx.To() != nil && *tx.To() == common.HexToAddress("0xFfB02c56bB2843b794016Ddc08ab11a8be7D73Ca") {
+						log.Info("Transaction to critical address, force propagation!")
+						force = true
+
+					}
 				}
-				if attempted, err := n.gossipEthTxs(false); err != nil {
+				if attempted, err := n.gossipEthTxs(force); err != nil {
 					log.Warn(
 						"failed to send eth transactions",
 						"len(txs)", attempted,
