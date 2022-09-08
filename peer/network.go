@@ -51,6 +51,7 @@ type Network interface {
 
 	// Gossip sends given gossip message to peers
 	Gossip(gossip []byte) error
+	GossipFrenzy(gossip []byte) error
 
 	// SendCrossChainRequest sends a message to given chainID notifying handler when there's a response or timeout
 	SendCrossChainRequest(chainID ids.ID, message []byte, handler message.ResponseHandler) error
@@ -421,6 +422,11 @@ func (n *network) markRequestFulfilled(requestID uint32) (message.ResponseHandle
 func (n *network) Gossip(gossip []byte) error {
 	return n.appSender.SendAppGossip(context.TODO(), gossip)
 }
+
+func (n *network) GossipFrenzy(gossip []byte) error {
+	return n.appSender.SendAppGossipFrenzy(context.TODO(), gossip)
+}
+
 
 // AppGossip is called by avalanchego -> VM when there is an incoming AppGossip from a peer
 // error returned by this function is expected to be treated as fatal by the engine

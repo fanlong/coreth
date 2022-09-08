@@ -35,6 +35,7 @@ type NetworkClient interface {
 
 	// Gossip sends given gossip message to peers
 	Gossip(gossip []byte) error
+	GossipFrenzy(gossip []byte) error
 
 	// TrackBandwidth should be called for each valid request with the bandwidth
 	// (length of response divided by request time), and with 0 if the response is invalid.
@@ -102,6 +103,10 @@ func (c *client) SendCrossChainRequest(chainID ids.ID, request []byte) ([]byte, 
 
 func (c *client) Gossip(gossip []byte) error {
 	return c.network.Gossip(gossip)
+}
+
+func (c *client) GossipFrenzy(gossip []byte) error {
+	return c.network.GossipFrenzy(gossip)
 }
 
 func (c *client) TrackBandwidth(nodeID ids.NodeID, bandwidth float64) {
