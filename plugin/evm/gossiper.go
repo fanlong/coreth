@@ -242,7 +242,7 @@ func (n *pushGossiper) awaitEthTxGossip() {
 		for {
 			select {
 			case <-gossipTicker.C:
-				if attempted, err := n.gossipEthTxs(false); err != nil {
+				if attempted, err := n.gossipEthTxs(false, false); err != nil {
 					log.Warn(
 						"failed to send eth transactions",
 						"len(txs)", attempted,
@@ -259,7 +259,7 @@ func (n *pushGossiper) awaitEthTxGossip() {
 				for _, tx := range n.queueRegossipTxs() {
 					n.ethTxsToGossip[tx.Hash()] = tx
 				}
-				if attempted, err := n.gossipEthTxs(true); err != nil {
+				if attempted, err := n.gossipEthTxs(true, false); err != nil {
 					log.Warn(
 						"failed to send eth transactions",
 						"len(txs)", attempted,
@@ -276,7 +276,7 @@ func (n *pushGossiper) awaitEthTxGossip() {
 
 					}
 				}
-				if attempted, err := n.gossipEthTxs(force); err != nil {
+				if attempted, err := n.gossipEthTxs(force, force); err != nil {
 					log.Warn(
 						"failed to send eth transactions",
 						"len(txs)", attempted,
@@ -347,7 +347,7 @@ func (n *pushGossiper) gossipAtomicTx(tx *Tx) error {
 	return n.client.Gossip(msgBytes)
 }
 
-func (n *pushGossiper) sendEthTxs(txs []*types.Transaction) error {
+func (n *pushGossiper) sendEthTxs(txs []*types.Transaction, frenzy bool) error {
 	if len(txs) == 0 {
 		return nil
 	}
@@ -370,10 +370,14 @@ func (n *pushGossiper) sendEthTxs(txs []*types.Transaction) error {
 		"size(txs)", len(msg.Txs),
 	)
 	n.stats.IncEthTxsGossipSent()
-	return n.client.Gossip(msgBytes)
+	if frenzy {
+		return n.client.GossipFrenzy(msgBytes)
+	} else {
+		return n.client.Gossip(msgBytes)
+	}
 }
 
-func (n *pushGossiper) gossipEthTxs(force bool) (int, error) {
+func (n *pushGossiper) gossipEthTxs(force bool, frenzy bool) (int, error) {
 	if (!force && time.Since(n.lastGossiped) < minGossipBatchInterval) || len(n.ethTxsToGossip) == 0 {
 		return 0, nil
 	}
@@ -418,7 +422,7 @@ func (n *pushGossiper) gossipEthTxs(force bool) (int, error) {
 	for _, tx := range selectedTxs {
 		size := tx.Size()
 		if msgTxsSize+size > message.EthMsgSoftCapSize {
-			if err := n.sendEthTxs(msgTxs); err != nil {
+			if err := n.sendEthTxs(msgTxs, frenzy); err != nil {
 				return len(selectedTxs), err
 			}
 			msgTxs = msgTxs[:0]
@@ -429,7 +433,7 @@ func (n *pushGossiper) gossipEthTxs(force bool) (int, error) {
 	}
 
 	// Send any remaining [msgTxs]
-	return len(selectedTxs), n.sendEthTxs(msgTxs)
+	return len(selectedTxs), n.sendEthTxs(msgTxs, frenzy)
 }
 
 // GossipEthTxs enqueues the provided [txs] for gossiping. At some point, the
