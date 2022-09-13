@@ -170,7 +170,7 @@ func (b *blockBuilder) awaitSubmittedTxs() {
 				if b.gossiper != nil && len(ethTxsEvent.Txs) > 0 {
 					// Give time for this node to build a block before attempting to
 					// gossip
-					time.Sleep(waitBlockTime)
+					// time.Sleep(waitBlockTime)
 					// [GossipEthTxs] will block unless [gossiper.ethTxsToGossipChan] (an
 					// unbuffered channel) is listened on
 					if err := b.gossiper.GossipEthTxs(ethTxsEvent.Txs); err != nil {
@@ -188,7 +188,7 @@ func (b *blockBuilder) awaitSubmittedTxs() {
 				if b.gossiper != nil && len(newTxs) > 0 {
 					// Give time for this node to build a block before attempting to
 					// gossip
-					time.Sleep(waitBlockTime)
+					// time.Sleep(waitBlockTime)
 					if err := b.gossiper.GossipAtomicTxs(newTxs); err != nil {
 						log.Warn(
 							"failed to gossip new atomic transactions",
