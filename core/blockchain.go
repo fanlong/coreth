@@ -1379,7 +1379,7 @@ func (bc *BlockChain) insertBlock(block *types.Block, writes bool) error {
 	blockWriteTimer.Inc((time.Since(wstart) - statedb.AccountCommits - statedb.StorageCommits - statedb.SnapshotCommits - statedb.TrieDBCommits).Milliseconds())
 	blockInsertTimer.Inc(time.Since(start).Milliseconds())
 
-	log.Debug("Inserted new block", "number", block.Number(), "hash", block.Hash(),
+	log.Info("Inserted new block", "number", block.Number(), "hash", block.Hash(),
 		"parentHash", block.ParentHash(),
 		"uncles", len(block.Uncles()), "txs", len(block.Transactions()), "gas", block.GasUsed(),
 		"elapsed", common.PrettyDuration(time.Since(start)),

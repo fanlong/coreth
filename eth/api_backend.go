@@ -89,7 +89,7 @@ func (b *EthAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNumb
 	}
 	// Treat requests for the pending, latest, or accepted block
 	// identically.
-	acceptedBlock := b.eth.LastAcceptedBlock()
+	acceptedBlock := b.CurrentBlock()
 	if number.IsAccepted() {
 		return acceptedBlock.Header(), nil
 	}
@@ -149,7 +149,7 @@ func (b *EthAPIBackend) BlockByNumber(ctx context.Context, number rpc.BlockNumbe
 	}
 	// Treat requests for the pending, latest, or accepted block
 	// identically.
-	acceptedBlock := b.eth.LastAcceptedBlock()
+	acceptedBlock := b.CurrentBlock()
 	if number.IsAccepted() {
 		return acceptedBlock, nil
 	}
