@@ -221,6 +221,7 @@ type BlockChain struct {
 	chainmu sync.RWMutex
 
 	currentBlock atomic.Pointer[types.Header] // Current head of the block chain
+	currentBlockFull atomic.Pointer[types.Block] // Current head block of the block chain
 
 	bodyCache     *lru.Cache[common.Hash, *types.Body]                // Cache for the most recent block bodies
 	receiptsCache *lru.Cache[common.Hash, []*types.Receipt]           // Cache for the most recent receipts per block
@@ -346,6 +347,7 @@ func NewBlockChain(
 	}
 
 	bc.currentBlock.Store(nil)
+	bc.currentBlockFull.Store(nil)
 
 	// Create the state manager
 	bc.stateManager = NewTrieWriter(bc.triedb, cacheConfig)
@@ -700,6 +702,7 @@ func (bc *BlockChain) loadLastState(lastAcceptedHash common.Hash) error {
 	}
 	// Everything seems to be fine, set as the head block
 	bc.currentBlock.Store(headBlock.Header())
+	bc.currentBlockFull.Store(headBlock)
 
 	// Restore the last known head header
 	currentHeader := headBlock.Header()
@@ -742,6 +745,7 @@ func (bc *BlockChain) loadGenesisState() error {
 	// Last update all in-memory chain markers
 	bc.lastAccepted = bc.genesisBlock
 	bc.currentBlock.Store(bc.genesisBlock.Header())
+	bc.currentBlockFull.Store(bc.genesisBlock)
 	bc.hc.SetGenesis(bc.genesisBlock.Header())
 	bc.hc.SetCurrentHeader(bc.genesisBlock.Header())
 	return nil
@@ -812,6 +816,7 @@ func (bc *BlockChain) writeHeadBlock(block *types.Block) {
 	// Update all in-memory chain markers in the last step
 	bc.hc.SetCurrentHeader(block.Header())
 	bc.currentBlock.Store(block.Header())
+	bc.currentBlockFull.Store(block)
 }
 
 // ValidateCanonicalChain confirms a canonical chain is well-formed.
@@ -2076,6 +2081,7 @@ func (bc *BlockChain) ResetToStateSyncedBlock(block *types.Block) error {
 	bc.lastAccepted = block
 	bc.acceptorTip = block
 	bc.currentBlock.Store(block.Header())
+	bc.currentBlockFull.Store(block)
 	bc.hc.SetCurrentHeader(block.Header())
 
 	lastAcceptedHash := block.Hash()
