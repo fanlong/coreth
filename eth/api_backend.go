@@ -99,7 +99,7 @@ func (b *EthAPIBackend) HeaderByNumber(ctx context.Context, number rpc.BlockNumb
 	}
 
 	if !b.IsAllowUnfinalizedQueries() && acceptedBlock != nil {
-		if number.Int64() > acceptedBlock.Number.Int64() {
+		if number.Int64() > acceptedBlock.Number().Int64() {
 			return nil, ErrUnfinalizedData
 		}
 	}
@@ -159,7 +159,7 @@ func (b *EthAPIBackend) BlockByNumber(ctx context.Context, number rpc.BlockNumbe
 	}
 
 	if !b.IsAllowUnfinalizedQueries() && acceptedBlock != nil {
-		if number.Int64() > acceptedBlock.Number.Int64() {
+		if number.Int64() > acceptedBlock.Number().Int64() {
 			return nil, ErrUnfinalizedData
 		}
 	}
