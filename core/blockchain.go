@@ -1467,7 +1467,6 @@ func (bc *BlockChain) insertBlock(block *types.Block, writes bool) error {
 		"elapsed", common.PrettyDuration(time.Since(start)),
 		"root", block.Root(), "baseFeePerGas", block.BaseFee(), "blockGasCost", block.BlockGasCost(),
 	)
-
 	processedBlockGasUsedCounter.Inc(int64(block.GasUsed()))
 	processedTxsCounter.Inc(int64(block.Transactions().Len()))
 	processedLogsCounter.Inc(int64(len(logs)))

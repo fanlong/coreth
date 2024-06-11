@@ -1100,6 +1100,7 @@ func (vm *VM) initBlockBuilding() error {
 		return fmt.Errorf("failed to initialize atomic tx gossip metrics: %w", err)
 	}
 
+	log.Info("GOSSIP Parameters", "num_validators", vm.config.PushGossipNumValidators, "peers", vm.config.PushGossipNumPeers)
 	pushGossipParams := gossip.BranchingFactor{
 		StakePercentage: vm.config.PushGossipPercentStake,
 		Validators:      vm.config.PushGossipNumValidators,
